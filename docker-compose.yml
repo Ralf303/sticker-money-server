@@ -1,0 +1,10 @@
+version: '1'
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - /etc/letsencrypt/live/stickermoney.su:/etc/letsencrypt/live/stickermoney.su
