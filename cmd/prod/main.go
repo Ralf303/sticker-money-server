@@ -18,8 +18,8 @@ func main() {
 
 	router := api.Routes()
 
-	certPath := os.Getenv("CERT_PATH")
-	keyPath := os.Getenv("KEY_PATH")
+	certPath := os.Getenv("CERT")
+	keyPath := os.Getenv("KEY")
 
 	fmt.Println("Server is running on port 8080")
 	log.Fatal(http.ListenAndServeTLS(":8080", certPath, keyPath, router))
