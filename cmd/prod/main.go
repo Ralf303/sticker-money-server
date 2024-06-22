@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"example.com/stickerMoneyAdmin/internal/api"
 	"github.com/joho/godotenv"
@@ -17,8 +18,8 @@ func main() {
 
 	router := api.Routes()
 
-	certPath := "./fullchain.pem"
-	keyPath := "./privkey.pem"
+	certPath := os.Getenv("CERT")
+	keyPath := os.Getenv("KEY")
 
 	fmt.Println("Server is running on port 8080")
 	log.Fatal(http.ListenAndServeTLS(":8080", certPath, keyPath, router))
