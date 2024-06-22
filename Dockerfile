@@ -10,7 +10,7 @@ COPY . .
 RUN go mod tidy
 
 # Соберите приложение
-RUN go build -o server ./cmd/main
+RUN go build -o server ./cmd/prod
 
 # Запустите приложение
 CMD ["./server"]
