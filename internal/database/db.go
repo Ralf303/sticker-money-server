@@ -29,7 +29,7 @@ type Stake struct {
 }
 
 type Admin struct {
-	Id       int    `db:"id"`
+	Id       string `db:"id"`
 	Status   string `db:"status"`
 	Password string `db:"password"`
 }
