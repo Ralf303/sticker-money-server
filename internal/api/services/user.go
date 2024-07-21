@@ -23,7 +23,12 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users := database.GetAllUsers(id)
+	filterBy := r.URL.Query().Get("filter")
+	if filterBy == "" {
+		filterBy = "no"
+	}
+
+	users := database.GetAllUsers(id, filterBy)
 
 	usersJSON, err := json.Marshal(users)
 	if err != nil {
@@ -38,15 +43,9 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := r.URL.Query().Get("id")
-	if idParam == "" {
-		http.Error(w, "Отсутствует параметр id(id в базе, НЕ CHAT_ID)", http.StatusBadRequest)
-		return
-	}
-
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		http.Error(w, "Неверный параметр id(Нужно целочисленное)", http.StatusBadRequest)
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Отсутствует параметр id(именно нужен id tg, НЕ ID в базе)", http.StatusBadRequest)
 		return
 	}
 
@@ -74,8 +73,8 @@ func UpdateBalance(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req struct {
-		ID     int `json:"id"`
-		Amount int `json:"amount"`
+		ID     string `json:"id"`
+		Amount int    `json:"amount"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -109,8 +108,8 @@ func UpdateBan(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req struct {
-		ID     int  `json:"id"`
-		Status bool `json:"status"`
+		ID     string `json:"id"`
+		Status bool   `json:"status"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&req)

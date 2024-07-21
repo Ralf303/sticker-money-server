@@ -7,14 +7,24 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func GetAllUsers(startId int) []User {
+func GetAllUsers(startId int, filterBy string) []User {
 	db, err := connect()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 	users := []User{}
-	query := `SELECT * FROM "Users" WHERE "id" >= $1 ORDER BY "id" ASC LIMIT 500`
+	query := ""
+
+	switch filterBy {
+	case "no":
+		query = `SELECT * FROM "Users" WHERE "id" >= $1 ORDER BY "id" ASC LIMIT 500`
+	case "up":
+		query = `SELECT * FROM "Users" ORDER BY "balance" DESC LIMIT 500 OFFSET $1`
+	case "down":
+		query = `SELECT * FROM "Users" ORDER BY "balance" ASC LIMIT 500 OFFSET $1`
+	}
+
 	err = db.Select(&users, query, startId)
 	if err != nil {
 		fmt.Println("ошибка GetAllUsers", err)
@@ -22,14 +32,14 @@ func GetAllUsers(startId int) []User {
 	return users
 }
 
-func GetUser(id int) (User, error) {
+func GetUser(id string) (User, error) {
 	db, err := connect()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 	var user User
-	query := `SELECT * FROM "Users" WHERE "id" = $1`
+	query := `SELECT * FROM "Users" WHERE "chatId" = $1`
 	err = db.Get(&user, query, id)
 	if err != nil {
 		fmt.Println("ошибка GetUser", err)
@@ -38,13 +48,13 @@ func GetUser(id int) (User, error) {
 	return user, nil
 }
 
-func UpdateUserBalance(id int, value int) error {
+func UpdateUserBalance(id string, value int) error {
 	db, err := connect()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	query := `UPDATE "Users" SET "balance"=$1 WHERE "id"=$2;`
+	query := `UPDATE "Users" SET "balance"=$1 WHERE "chatId"=$2;`
 	_, err = db.Exec(query, value, id)
 	if err != nil {
 		fmt.Println("Ошибка при обновлении балансa:", err)
@@ -53,13 +63,13 @@ func UpdateUserBalance(id int, value int) error {
 	return nil
 }
 
-func UpdateUserBan(id int, value bool) error {
+func UpdateUserBan(id string, value bool) error {
 	db, err := connect()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	query := `UPDATE "Users" SET "isBan"=$1 WHERE "id"=$2;`
+	query := `UPDATE "Users" SET "isBan"=$1 WHERE "chatId"=$2;`
 	_, err = db.Exec(query, value, id)
 	if err != nil {
 		fmt.Println("Ошибка при обновлении бана:", err)
